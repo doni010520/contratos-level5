@@ -2,16 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Instalar apenas pacotes essenciais e que existem
 RUN apt-get update && apt-get install -y \
-    libglib2.0-0 \
-    libnss3 \
-    libxss1 \
-    libappindicator1 \
-    libindicator7 \
-    libxrender1 \
     fonts-liberation \
-    libappindicator3-1 \
-    libgbm1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
