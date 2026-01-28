@@ -180,7 +180,7 @@ def generate_contract_pdf(data):
     )
     
     # ================== PÁGINA 1 - CAPA ==================
-    capa_path = get_asset_path('capa.png')
+    capa_path = get_asset_path('capa.jpg')
     if os.path.exists(capa_path):
         c.drawImage(capa_path, 0, 0, width=width, height=height)
     else:
