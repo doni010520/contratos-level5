@@ -6,9 +6,11 @@ import os
 from datetime import datetime
 from flask import Flask, render_template, request, send_file, jsonify
 from pdf_generator import generate_contract_pdf
+import inspect
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+
 
 @app.route('/')
 def index():
@@ -20,6 +22,16 @@ def index():
 def gerar_contrato():
     """Endpoint para gerar o PDF do contrato"""
     try:
+        # Função para converter valor BR (1.234,56) para float
+        def parse_currency(value):
+            if not value:
+                return 0.0
+            # Remove R$ e espaços
+            value = str(value).replace('R$', '').strip()
+            # Remove pontos de milhar e troca vírgula por ponto
+            value = value.replace('.', '').replace(',', '.')
+            return float(value)
+        
         # Coletar dados do formulário
         data = {
             'nome': request.form.get('nome', '').strip(),
@@ -29,9 +41,8 @@ def gerar_contrato():
             'cep': request.form.get('cep', '').strip(),
             'cidade': request.form.get('cidade', '').strip(),
             'estado': request.form.get('estado', 'MG').strip(),
-            'valor_total': float(request.form.get('valor_total', 0)),
-            'valor_material': float(request.form.get('valor_material', 0)),
-            'valor_mao_obra': float(request.form.get('valor_mao_obra', 0)),
+            'valor_material': parse_currency(request.form.get('valor_material', '0')),
+            'valor_mao_obra': parse_currency(request.form.get('valor_mao_obra', '0')),
             'qtd_modulos': int(request.form.get('qtd_modulos', 1)),
             'potencia_modulo': request.form.get('potencia_modulo', '610 Wp').strip(),
             'marca_modulo': request.form.get('marca_modulo', 'DMEGC').strip(),
@@ -41,6 +52,9 @@ def gerar_contrato():
             'percentual_entrada': int(request.form.get('percentual_entrada', 30)),
             'data_contrato': request.form.get('data_contrato', datetime.now().strftime('%d de %B de %Y'))
         }
+        
+        # Calcular valor total
+        data['valor_total'] = data['valor_material'] + data['valor_mao_obra']
         
         # Formatar data se vier no formato yyyy-mm-dd
         if '-' in data['data_contrato']:
@@ -70,6 +84,22 @@ def gerar_contrato():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/debug')
+def debug():
+    """Debug - verificar versão do código"""
+    import pdf_generator
+    source = inspect.getsource(pdf_generator.generate_contract_pdf)
+    has_42 = "4.2. O prazo" in source
+    has_5 = "5. DAS OBRIGAÇÕES" in source
+    has_6 = "6. DAS LIMITAÇÕES" in source
+    return jsonify({
+        'tem_4.2': has_42,
+        'tem_secao_5': has_5,
+        'tem_secao_6': has_6,
+        'versao': 'v2_completa' if (has_42 and has_5 and has_6) else 'v1_antiga'
+    })
 
 
 @app.route('/health')
