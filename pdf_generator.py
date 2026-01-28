@@ -150,10 +150,11 @@ def generate_contract_pdf(data):
     )
     
     margin_left = 20*mm
+    margin_bottom = 20*mm
     text_width = width - margin_left - 20*mm
     
-    # Espaçamentos
-    LH = 4.5*mm  # Line height padrão
+    # Espaçamentos REDUZIDOS
+    LH = 4*mm  # Line height padrão
     
     # ================== PÁGINA 1 - CAPA ==================
     capa_path = get_asset_path('capa.png')
@@ -188,7 +189,7 @@ def generate_contract_pdf(data):
     endereco = f"{data['endereco']}, {data['bairro']} - CEP {data['cep']}, {data['cidade']}-{data['estado']}"
     txt = f"<b>{data['nome']}</b>, inscrito no <b>CPF nº {format_cpf(data['cpf'])}</b>, residente na {endereco}"
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH * 1.5
+    y -= h + LH
     
     # CONTRATADA
     c.setFont("Helvetica", 10)
@@ -197,20 +198,20 @@ def generate_contract_pdf(data):
     
     txt = """<b>LEVEL 5 ENGENHARIA ELÉTRICA LTDA</b>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº <b>57.946.157/0001-21</b>, com sede em Juiz de Fora – MG, doravante denominada "CONTRATADA"."""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     txt = """As partes acima identificadas celebram o presente Contrato de Compra e Instalação de Sistema de Energia Solar Fotovoltaica, mediante as cláusulas e condições seguintes:"""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH * 1.5
+    y -= h + LH
     
     # 1. DO OBJETO
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "1. DO OBJETO")
-    y -= LH * 1.2
+    y -= LH
     
     txt = """1.1. O presente contrato tem por objeto a entrega e instalação, pela CONTRATADA, de um sistema de geração de energia solar fotovoltaica, conforme especificações técnicas definidas em proposta previamente aprovada pelo CONTRATANTE."""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "1.2. A instalação incluirá, dentre outros serviços:")
@@ -222,12 +223,12 @@ def generate_contract_pdf(data):
         c.drawString(margin_left + 5*mm, y, f"• {s}")
         y -= LH
     
-    y -= LH
+    y -= LH * 0.5
     
     # 2. DAS GARANTIAS
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "2. DAS GARANTIAS")
-    y -= LH * 1.2
+    y -= LH
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "2.1. Os componentes fornecidos possuem as seguintes garantias diretas dos fabricantes:")
@@ -238,11 +239,9 @@ def generate_contract_pdf(data):
         c.drawString(margin_left + 5*mm, y, f"• {g}")
         y -= LH
     
-    y -= LH * 0.3
-    
     txt = """2.2. A CONTRATADA oferece garantia de 12 (doze) meses sobre os serviços de instalação, abrangendo vícios de execução e falhas técnicas."""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "2.3. Estão excluídos da garantia:")
@@ -262,14 +261,15 @@ def generate_contract_pdf(data):
     y = height - 28*mm
     
     # 3. DO PREÇO
+    c.setFillColor(black)
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "3. DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO")
-    y -= LH * 1.2
+    y -= LH
     
     valor_ext = valor_por_extenso(data['valor_total'])
     txt = f"""3.1. O valor total do presente contrato é de {format_currency(data['valor_total'])} ({valor_ext}), referentes aos projetos e instalação do sistema fotovoltaico com {data['qtd_modulos']:02d} módulos fotovoltaicos de {data['potencia_modulo']} - {data['marca_modulo']} e 1 inversor de {data['potencia_inversor']} - {data['marca_inversor']}."""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "3.2. O pagamento será realizado, conforme se segue:")
@@ -278,17 +278,17 @@ def generate_contract_pdf(data):
     c.drawString(margin_left + 5*mm, y, f"• Material: {format_currency(data['valor_material'])};")
     y -= LH
     c.drawString(margin_left + 5*mm, y, f"• Mão de obra: {format_currency(data['valor_mao_obra'])} sendo {data['percentual_entrada']}% na assinatura do contrato e o restante ao final da instalação.")
-    y -= LH * 1.5
+    y -= LH * 1.2
     
     # 4. DO PRAZO
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "4. DO PRAZO DE EXECUÇÃO")
-    y -= LH * 1.2
+    y -= LH
     
     prazo_ext = valor_por_extenso(data['prazo_execucao']).replace(' reais', '').replace(' real', '')
     txt = f"""4.1. O prazo estimado para a execução dos serviços é de até {data['prazo_execucao']} ({prazo_ext}) dias corridos, contados a partir da assinatura deste contrato e da liberação de acesso ao local."""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "4.2. O prazo poderá ser prorrogado em caso de:")
@@ -299,12 +299,12 @@ def generate_contract_pdf(data):
         c.drawString(margin_left + 5*mm, y, f"• {p}")
         y -= LH
     
-    y -= LH
+    y -= LH * 0.5
     
     # 5. DAS OBRIGAÇÕES
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "5. DAS OBRIGAÇÕES DO CONTRATANTE")
-    y -= LH * 1.2
+    y -= LH
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "5.1. São obrigações do CONTRATANTE:")
@@ -317,12 +317,12 @@ def generate_contract_pdf(data):
         c.drawString(margin_left + 5*mm, y, f"• {o}")
         y -= LH
     
-    y -= LH
+    y -= LH * 0.5
     
     # 6. DAS LIMITAÇÕES
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "6. DAS LIMITAÇÕES DE RESPONSABILIDADE")
-    y -= LH * 1.2
+    y -= LH
     
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, "6.1. A CONTRATADA não se responsabiliza por:")
@@ -341,38 +341,39 @@ def generate_contract_pdf(data):
     y = height - 28*mm
     
     # 7. DA RESCISÃO
+    c.setFillColor(black)
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "7. DA RESCISÃO CONTRATUAL")
-    y -= LH * 1.2
+    y -= LH
     
     txt = """7.1. Este contrato poderá ser rescindido por qualquer das partes, mediante comunicação formal, nas seguintes hipóteses:"""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH * 0.5
+    y -= h + LH * 0.3
     
     c.setFont("Helvetica", 10)
-    for h in ["Descumprimento de cláusulas contratuais;", "Impossibilidade técnica de execução comprovada;",
+    for item in ["Descumprimento de cláusulas contratuais;", "Impossibilidade técnica de execução comprovada;",
               "Inadimplemento por parte do CONTRATANTE."]:
-        c.drawString(margin_left + 5*mm, y, f"• {h}")
+        c.drawString(margin_left + 5*mm, y, f"• {item}")
         y -= LH
     
-    y -= LH * 0.5
+    y -= LH * 0.3
     
     txt = """7.2. Em caso de desistência imotivada por parte do CONTRATANTE após o início dos serviços, será devida à CONTRATADA multa compensatória correspondente a 15% (quinze por cento) do valor do contrato."""
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH * 1.5
+    y -= h + LH
     
     # 8. DISPOSIÇÕES FINAIS
     c.setFont("Helvetica-Bold", 11)
     c.drawString(margin_left, y, "8. DAS DISPOSIÇÕES FINAIS")
-    y -= LH * 1.2
+    y -= LH
     
     txt = "8.1. Este contrato é celebrado em caráter irrevogável e irretratável, obrigando as partes e seus sucessores a qualquer título."
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     txt = "8.2. Qualquer alteração neste instrumento somente será válida se feita por escrito e assinada por ambas as partes."
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
-    y -= h + LH
+    y -= h + LH * 0.5
     
     txt = "8.3. Fica eleito o foro da Comarca de Juiz de Fora – MG para dirimir quaisquer dúvidas ou controvérsias decorrentes do presente contrato, com renúncia de qualquer outro, por mais privilegiado que seja."
     h = draw_paragraph(c, txt, margin_left, y, text_width, style_normal)
@@ -381,10 +382,10 @@ def generate_contract_pdf(data):
     # Data e assinaturas
     c.setFont("Helvetica", 10)
     c.drawString(margin_left, y, f"Juiz de Fora – MG, {data['data_contrato']}.")
-    y -= LH * 4
+    y -= LH * 3
     
     c.drawString(margin_left, y, "CONTRATANTE: _______________________________________")
-    y -= LH * 4
+    y -= LH * 3
     
     c.drawString(margin_left, y, "CONTRATADA: ________________________________________")
     
