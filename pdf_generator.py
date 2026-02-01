@@ -202,8 +202,8 @@ class PDFWriter:
         # Assinatura da CONTRATADA (imagem PNG)
         assinatura_path = get_asset_path('assinatura.png')
         if os.path.exists(assinatura_path):
-            self.c.drawImage(assinatura_path, self.margin_left + 20*mm, self.y - 3*mm,
-                           width=55*mm, height=20*mm,
+            self.c.drawImage(assinatura_path, self.margin_left + 20*mm, self.y - 6*mm,
+                           width=70*mm, height=25*mm,
                            preserveAspectRatio=True, mask='auto')
         self.c.drawString(self.margin_left, self.y, "CONTRATADA: ________________________________________")
 
