@@ -27,8 +27,6 @@ def draw_header(c, width, height):
     c.setFillColor(white)
     c.setFont("Helvetica-Bold", 12)
     c.drawString(10*mm, height - 13*mm, "CONTRATO DE PRESTAÇÃO DE SERVIÇO")
-    c.setFillColor(white)
-    c.rect(width - 60*mm, height - header_height, 60*mm, header_height, fill=1, stroke=0)
     logo_path = get_asset_path('logo.png')
     if os.path.exists(logo_path):
         c.drawImage(logo_path, width - 55*mm, height - 18*mm, width=50*mm, height=15*mm,
@@ -135,8 +133,8 @@ class PDFWriter:
         self.y -= self.LINE_GAP
 
     def title(self, text):
-        """Título de seção em bold - com espaço extra ANTES"""
-        needed = self.LINE_GAP * 2 + 4*mm
+        """Título de seção em bold - com espaço extra ANTES e DEPOIS"""
+        needed = self.LINE_GAP * 3
         if self._needs_page(needed):
             self.new_page()
         else:
@@ -145,6 +143,7 @@ class PDFWriter:
         self.c.setFillColor(black)
         self.c.setFont("Helvetica-Bold", 11)
         self.c.drawString(self.margin_left, self.y, text)
+        # Espaço após título igual ao espaço entre linhas normais
         self._advance()
 
     def text(self, text):
@@ -203,8 +202,8 @@ class PDFWriter:
         # Assinatura da CONTRATADA (imagem PNG)
         assinatura_path = get_asset_path('assinatura.png')
         if os.path.exists(assinatura_path):
-            self.c.drawImage(assinatura_path, self.margin_left + 25*mm, self.y + 2*mm,
-                           width=40*mm, height=15*mm,
+            self.c.drawImage(assinatura_path, self.margin_left + 20*mm, self.y - 3*mm,
+                           width=55*mm, height=20*mm,
                            preserveAspectRatio=True, mask='auto')
         self.c.drawString(self.margin_left, self.y, "CONTRATADA: ________________________________________")
 
