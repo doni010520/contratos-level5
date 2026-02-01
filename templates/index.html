@@ -98,31 +98,28 @@
             margin-bottom: 6px;
         }
         
-        input, select {
+        input, select, textarea {
             padding: 12px 14px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
+            font-family: inherit;
             transition: all 0.2s ease;
         }
         
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #3a8a9a;
             box-shadow: 0 0 0 3px rgba(58, 138, 154, 0.1);
         }
         
-        input::placeholder {
+        input::placeholder, textarea::placeholder {
             color: #aaa;
         }
         
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .input-group input {
-            flex: 1;
+        textarea {
+            resize: vertical;
+            min-height: 80px;
         }
         
         .input-prefix {
@@ -174,35 +171,39 @@
             margin-top: 4px;
         }
         
-        .estados-select {
-            width: 100%;
+        .payment-examples {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            background: #f9f9f9;
+            padding: 10px 12px;
+            border-radius: 6px;
+            line-height: 1.6;
         }
         
-        /* Responsivo */
+        .payment-examples strong {
+            color: #1a3a4a;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 margin: 0;
                 border-radius: 0;
             }
-            
             .header {
                 padding: 20px;
             }
-            
             .header h1 {
                 font-size: 22px;
             }
-            
             form {
                 padding: 20px;
             }
-            
             .form-grid {
                 grid-template-columns: 1fr;
             }
         }
         
-        /* Loading state */
         button[type="submit"].loading {
             pointer-events: none;
             opacity: 0.8;
@@ -228,19 +229,18 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="/static/logo.png" alt="Level 5 Engenharia Elétrica" class="logo" onerror="this.style.display='none'">
-            <h1>Gerador de Contratos</h1>
-            <p>Sistema de Energia Solar Fotovoltaica</p>
+            <h1>⚡ Level 5 Engenharia Elétrica</h1>
+            <p>Gerador de Contratos de Prestação de Serviço</p>
         </div>
         
-        <form action="/gerar-contrato" method="POST" id="contratoForm">
-            <!-- Dados do Cliente -->
+        <form id="contratoForm" action="/gerar-contrato" method="POST">
+            <!-- Dados do Contratante -->
             <div class="section">
-                <h2 class="section-title">Dados do Cliente</h2>
+                <h2 class="section-title">Dados do Contratante</h2>
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <label for="nome">Nome Completo *</label>
-                        <input type="text" id="nome" name="nome" required placeholder="Ex: João da Silva Santos">
+                        <input type="text" id="nome" name="nome" required placeholder="Nome completo do contratante">
                     </div>
                     
                     <div class="form-group">
@@ -251,26 +251,28 @@
                     <div class="form-group">
                         <label for="cep">CEP *</label>
                         <input type="text" id="cep" name="cep" required placeholder="00000-000" maxlength="9">
+                        <span class="help-text">Preenche endereço automaticamente</span>
                     </div>
                     
                     <div class="form-group full-width">
-                        <label for="endereco">Endereço (Rua, Número, Complemento) *</label>
-                        <input type="text" id="endereco" name="endereco" required placeholder="Ex: Rua das Flores, 123, Apto 101">
+                        <label for="endereco">Endereço *</label>
+                        <input type="text" id="endereco" name="endereco" required placeholder="Rua, número">
                     </div>
                     
                     <div class="form-group">
                         <label for="bairro">Bairro *</label>
-                        <input type="text" id="bairro" name="bairro" required placeholder="Ex: Centro">
+                        <input type="text" id="bairro" name="bairro" required placeholder="Bairro">
                     </div>
                     
                     <div class="form-group">
                         <label for="cidade">Cidade *</label>
-                        <input type="text" id="cidade" name="cidade" required placeholder="Ex: Juiz de Fora">
+                        <input type="text" id="cidade" name="cidade" required placeholder="Cidade">
                     </div>
                     
                     <div class="form-group">
                         <label for="estado">Estado *</label>
                         <select id="estado" name="estado" required class="estados-select">
+                            <option value="">Selecione</option>
                             <option value="AC">Acre</option>
                             <option value="AL">Alagoas</option>
                             <option value="AP">Amapá</option>
@@ -339,18 +341,10 @@
                 <h2 class="section-title">Valores e Pagamento</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="valor_total">Valor Total *</label>
-                        <div class="input-prefix">
-                            <span>R$</span>
-                            <input type="number" id="valor_total" name="valor_total" required min="0" step="0.01" placeholder="0,00">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
                         <label for="valor_material">Valor do Material *</label>
                         <div class="input-prefix">
                             <span>R$</span>
-                            <input type="number" id="valor_material" name="valor_material" required min="0" step="0.01" placeholder="0,00">
+                            <input type="text" id="valor_material" name="valor_material" required placeholder="0,00" inputmode="numeric">
                         </div>
                     </div>
                     
@@ -358,17 +352,30 @@
                         <label for="valor_mao_obra">Valor da Mão de Obra *</label>
                         <div class="input-prefix">
                             <span>R$</span>
-                            <input type="number" id="valor_mao_obra" name="valor_mao_obra" required min="0" step="0.01" placeholder="0,00">
+                            <input type="text" id="valor_mao_obra" name="valor_mao_obra" required placeholder="0,00" inputmode="numeric">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="percentual_entrada">% Entrada (Mão de Obra) *</label>
+                        <label for="valor_total_display">Valor Total</label>
                         <div class="input-prefix">
-                            <input type="number" id="percentual_entrada" name="percentual_entrada" required min="0" max="100" value="30">
-                            <span>%</span>
+                            <span>R$</span>
+                            <input type="text" id="valor_total_display" readonly placeholder="0,00" style="background: #f5f5f5; cursor: not-allowed;">
                         </div>
-                        <span class="help-text">Restante pago ao final da instalação</span>
+                        <input type="hidden" id="valor_total" name="valor_total">
+                        <span class="help-text">Calculado automaticamente</span>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="forma_pagamento">Forma de Pagamento *</label>
+                        <textarea id="forma_pagamento" name="forma_pagamento" required placeholder="Descreva a forma de pagamento..."></textarea>
+                        <div class="payment-examples">
+                            <strong>Exemplos:</strong><br>
+                            • <strong>À vista:</strong> Material à vista. Mão de obra após instalação.<br>
+                            • <strong>Com entrada:</strong> Material à vista. Mão de obra: 30% na assinatura, restante após instalação.<br>
+                            • <strong>Cartão:</strong> Material em 12x de R$ 833,33 no cartão. Mão de obra em 6x de R$ 700,00 no cartão.<br>
+                            • <strong>Financiado:</strong> Valor completo financiado pelo banco.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -403,7 +410,6 @@
         document.getElementById('cpf').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 11) value = value.slice(0, 11);
-            
             if (value.length > 9) {
                 value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
             } else if (value.length > 6) {
@@ -411,7 +417,6 @@
             } else if (value.length > 3) {
                 value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
             }
-            
             e.target.value = value;
         });
         
@@ -419,11 +424,9 @@
         document.getElementById('cep').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 8) value = value.slice(0, 8);
-            
             if (value.length > 5) {
                 value = value.replace(/(\d{5})(\d{1,3})/, '$1-$2');
             }
-            
             e.target.value = value;
         });
         
@@ -431,24 +434,14 @@
         document.getElementById('cep').addEventListener('blur', async function(e) {
             const cep = e.target.value.replace(/\D/g, '');
             if (cep.length !== 8) return;
-            
             try {
                 const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const data = await response.json();
-                
                 if (!data.erro) {
-                    if (data.logradouro) {
-                        document.getElementById('endereco').value = data.logradouro;
-                    }
-                    if (data.bairro) {
-                        document.getElementById('bairro').value = data.bairro;
-                    }
-                    if (data.localidade) {
-                        document.getElementById('cidade').value = data.localidade;
-                    }
-                    if (data.uf) {
-                        document.getElementById('estado').value = data.uf;
-                    }
+                    if (data.logradouro) document.getElementById('endereco').value = data.logradouro;
+                    if (data.bairro) document.getElementById('bairro').value = data.bairro;
+                    if (data.localidade) document.getElementById('cidade').value = data.localidade;
+                    if (data.uf) document.getElementById('estado').value = data.uf;
                 }
             } catch (error) {
                 console.log('Erro ao buscar CEP:', error);
@@ -460,8 +453,6 @@
             const btn = document.getElementById('submitBtn');
             btn.classList.add('loading');
             btn.textContent = 'Gerando contrato...';
-            
-            // Remove loading após download (timeout de segurança)
             setTimeout(() => {
                 btn.classList.remove('loading');
                 btn.textContent = '📄 Gerar Contrato PDF';
@@ -470,13 +461,39 @@
         
         // Calcular valor total automaticamente
         function calcularTotal() {
-            const material = parseFloat(document.getElementById('valor_material').value) || 0;
-            const maoObra = parseFloat(document.getElementById('valor_mao_obra').value) || 0;
-            document.getElementById('valor_total').value = (material + maoObra).toFixed(2);
+            const material = parseFloat(document.getElementById('valor_material').value.replace(/\./g, '').replace(',', '.')) || 0;
+            const maoObra = parseFloat(document.getElementById('valor_mao_obra').value.replace(/\./g, '').replace(',', '.')) || 0;
+            const total = material + maoObra;
+            document.getElementById('valor_total_display').value = formatarMoeda(total.toFixed(2));
+            document.getElementById('valor_total').value = total.toFixed(2);
         }
         
-        document.getElementById('valor_material').addEventListener('input', calcularTotal);
-        document.getElementById('valor_mao_obra').addEventListener('input', calcularTotal);
+        // Formatar número para moeda brasileira
+        function formatarMoeda(valor) {
+            valor = valor.replace(/\D/g, '');
+            if (valor === '') return '';
+            valor = (parseInt(valor) / 100).toFixed(2);
+            valor = valor.replace('.', ',');
+            valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return valor;
+        }
+        
+        // Máscara de moeda nos campos de valor
+        function aplicarMascaraMoeda(input) {
+            input.addEventListener('input', function(e) {
+                let valor = e.target.value.replace(/\D/g, '');
+                if (valor === '') {
+                    e.target.value = '';
+                    calcularTotal();
+                    return;
+                }
+                e.target.value = formatarMoeda(valor);
+                calcularTotal();
+            });
+        }
+        
+        aplicarMascaraMoeda(document.getElementById('valor_material'));
+        aplicarMascaraMoeda(document.getElementById('valor_mao_obra'));
     </script>
 </body>
 </html>
