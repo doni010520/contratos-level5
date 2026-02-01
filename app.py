@@ -9,30 +9,24 @@ from pdf_generator import generate_contract_pdf
 import inspect
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 @app.route('/')
 def index():
-    """Página principal com formulário"""
     return render_template('index.html')
 
 
 @app.route('/gerar-contrato', methods=['POST'])
 def gerar_contrato():
-    """Endpoint para gerar o PDF do contrato"""
     try:
-        # Função para converter valor BR (1.234,56) para float
         def parse_currency(value):
             if not value:
                 return 0.0
-            # Remove R$ e espaços
             value = str(value).replace('R$', '').strip()
-            # Remove pontos de milhar e troca vírgula por ponto
             value = value.replace('.', '').replace(',', '.')
             return float(value)
         
-        # Coletar dados do formulário
         data = {
             'nome': request.form.get('nome', '').strip(),
             'cpf': request.form.get('cpf', '').strip(),
@@ -49,14 +43,12 @@ def gerar_contrato():
             'potencia_inversor': request.form.get('potencia_inversor', '3,1 kW').strip(),
             'marca_inversor': request.form.get('marca_inversor', 'Sofar').strip(),
             'prazo_execucao': int(request.form.get('prazo_execucao', 40)),
-            'percentual_entrada': int(request.form.get('percentual_entrada', 30)),
+            'forma_pagamento': request.form.get('forma_pagamento', '').strip(),
             'data_contrato': request.form.get('data_contrato', datetime.now().strftime('%d de %B de %Y'))
         }
         
-        # Calcular valor total
         data['valor_total'] = data['valor_material'] + data['valor_mao_obra']
         
-        # Formatar data se vier no formato yyyy-mm-dd
         if '-' in data['data_contrato']:
             try:
                 date_obj = datetime.strptime(data['data_contrato'], '%Y-%m-%d')
@@ -69,10 +61,7 @@ def gerar_contrato():
             except:
                 pass
         
-        # Gerar PDF
         pdf_buffer = generate_contract_pdf(data)
-        
-        # Nome do arquivo
         nome_arquivo = f"Contrato_Comercial_-{data['nome'].replace(' ', '_')}.pdf"
         
         return send_file(
@@ -88,23 +77,17 @@ def gerar_contrato():
 
 @app.route('/debug')
 def debug():
-    """Debug - verificar versão do código"""
     import pdf_generator
     source = inspect.getsource(pdf_generator.generate_contract_pdf)
-    has_42 = "4.2. O prazo" in source
-    has_5 = "5. DAS OBRIGAÇÕES" in source
-    has_6 = "6. DAS LIMITAÇÕES" in source
+    has_forma = "forma_pagamento" in source
     return jsonify({
-        'tem_4.2': has_42,
-        'tem_secao_5': has_5,
-        'tem_secao_6': has_6,
-        'versao': 'v2_completa' if (has_42 and has_5 and has_6) else 'v1_antiga'
+        'tem_forma_pagamento': has_forma,
+        'versao': 'v5_forma_pagamento' if has_forma else 'antiga'
     })
 
 
 @app.route('/health')
 def health():
-    """Health check para o Easypanel"""
     return jsonify({'status': 'ok'})
 
 
